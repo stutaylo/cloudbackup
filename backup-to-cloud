@@ -1,0 +1,135 @@
+#!/usr/bin/python
+
+import sys
+import os
+import pyrax
+import pyrax.exceptions as exc
+import time
+
+# Define our connection information.
+accounts = [{'username': 'MYUSERNAME', 
+            'api_key': 'MY_API_KEY',
+            'region': 'LON'}]
+
+# Default container to upload content to.
+container = 'BackupContainer'
+
+
+def get_arguments():
+    '''
+    Retrieve name of item to backup from provided arguments.
+    
+    '''
+
+    if len(sys.argv) == 1:
+        print 'Please provide a filename'
+        sys.exit(1)
+    else:
+        return sys.argv[1]
+
+
+def verify_item(itemname):
+    '''
+    (string) -> string 
+
+    Identifies if item is a file or a directory. 
+    '''
+    if os.path.isfile(itemname):
+        return 'file'
+    elif os.path.isdir(itemname):
+        return 'dir'
+    else:
+        print "Cannot find ", itemname
+        sys.exit(1)
+
+
+def create_container(cf, container):
+    '''(connection, string) -> container
+
+    Connects to the cloud and creates a cont
+    object either by get'ing container or creating it
+    '''
+
+    try:
+        cont = cf.get_container(container)
+    except exc.NoSuchContainer:
+        cont = cf.create_container(container)
+    except:
+        print "Could not find/create container."
+        sys.exit(1)
+
+    print "Created container object ", cont
+
+    return cont
+
+
+def upload_file(cont, itemname):
+    '''
+    Uploads file to container cont
+    '''
+    
+    chksum = pyrax.utils.get_checksum(itemname)
+
+    try:
+        cont.upload_file(itemname, itemname, etag=chksum)
+    except:
+        print "Failed to upload file."
+        sys.exit(1)
+
+
+def upload_dir(cf, itemname, container):
+    '''
+    Uploads directory to container.
+    '''
+
+    try:
+        upload_key, total_bytes = cf.upload_folder(itemname, 
+                                            container=container)
+    except:
+        print "Failed to upload directory."
+        sys.exit(1)
+
+    print "Total bytes to upload:", total_bytes
+    uploaded = 0
+    while uploaded < total_bytes:
+        uploaded = cf.get_uploaded(upload_key)
+        print "Progress: %4.2f%%" % ((uploaded * 100.0) / total_bytes)
+        time.sleep(1)
+
+
+
+
+def main():
+    itemname = get_arguments()
+    itemtype = verify_item(itemname)
+
+    for account in accounts:
+        try: 
+            pyrax.set_credentials(account['username'],
+                                account['api_key'],
+                                account['region'])
+        except exc.AuthenticationFailed:
+            print "Could not connect to Cloud. Auth Failure."
+            sys.exit(1)
+
+        cf = pyrax.cloudfiles
+        print cf.get_account_metadata()
+
+        cont = create_container(cf, container)
+        
+        if itemtype == 'file':
+            print "Uploading file."
+            upload_file(cont, itemname)
+        else:
+            print "Uploading directory."
+            upload_dir(cf, itemname, container)
+
+
+    print "Upload finished."
+
+
+
+if __name__ == '__main__':
+    main()
+
+
