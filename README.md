@@ -1,4 +1,7 @@
 
+CloudFiles Backup/Restore Scripts
+=================================
+
 Python scripts to backup and restore to/from Rackspace CloudFiles.
 
 Written because I need to sometimes quickly back up and restore things
@@ -10,6 +13,7 @@ seperate cloud accounts at the same time in different regions (though
 this has not been tested yet..)
 
 To backup:
+==========
 
 backup_to_cloud <filename>
 
@@ -17,7 +21,10 @@ or
 
 backup_to_cloud <directory> 
 
-If the file already exists on cloudfiles, it is overwritten.
+Note: If the file already exists on cloudfiles, it is overwritten.
 
 
-To restore: TBD.
+To restore: 
+===========
+
+TBD.
