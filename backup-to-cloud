@@ -2,9 +2,9 @@
 
 import sys
 import os
+import time
 import pyrax
 import pyrax.exceptions as exc
-import time
 
 # Define our connection information.
 accounts = [{'username': 'MYUSERNAME', 
@@ -51,6 +51,7 @@ def create_container(cf, container):
     '''
 
     try:
+        # does it already exist?
         cont = cf.get_container(container)
     except exc.NoSuchContainer:
         cont = cf.create_container(container)
