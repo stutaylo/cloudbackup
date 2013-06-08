@@ -1,0 +1,100 @@
+#!/usr/bin/python
+
+import sys
+import os
+import time
+import pyrax
+import pyrax.exceptions as exc
+import swiftclient
+
+# Define our connection information.
+account = {'username': 'USERNAME', 
+            'api_key': 'KEY',
+            'region': 'LON'}
+
+# Default container to upload content to.
+container = 'BackupContainer'
+
+
+def get_arguments():
+    '''
+    Retrieve name of item to retrieve.
+    
+    '''
+    filename = None
+
+    if len(sys.argv) < 2:
+        print 'No action specified: LIST | GET'
+        sys.exit(1)
+   
+    if sys.argv[1] != 'LIST' and sys.argv[1] != 'GET':
+        print 'Action must be LIST or GET'
+        sys.exit(1)
+  
+    if sys.argv[1] == 'GET' and len(sys.argv) != 3:
+        print 'You must specify a file to get'
+        sys.exit(1)
+  
+    if sys.argv[1] == 'GET':
+        filename = sys.argv[2]
+
+    return sys.argv[1], filename
+
+
+def list_items(cont):
+    '''
+    Takes a container object an list the contents.
+    '''
+
+    objects = cont.get_objects()
+      
+    for object in objects:
+        print object.name
+
+
+def get_items(cont, item):
+
+    try:
+        cfile = cont.fetch_object(item)
+        return cfile
+    except swiftclient.client.ClientException:
+        print 'Could not download file. Does the file exist?'
+        sys.exit(1)
+
+def write_file(filename, contents):
+
+    file = filename.split('/')
+    outfile = open(file[-1], 'w')
+    outfile.write(contents)
+    outfile.close()
+
+def main():
+    action, filename = get_arguments()
+
+    try: 
+        pyrax.set_credentials(account['username'],
+                              account['api_key'],
+                              account['region'])
+    except exc.AuthenticationFailed:
+        print "Could not connect to Cloud. Auth Failure."
+        sys.exit(1)
+
+    cf = pyrax.cloudfiles
+
+    # Create the container object.    
+    cont = cf.get_container(container)
+
+    if action == 'LIST':
+        list_items(cont)
+        sys.exit(0)
+    elif action == 'GET':
+        write_file(filename, get_items(cont,filename))
+        sys.exit(0) 
+    else:
+        print 'Did not understand request'
+        sys.exit(1)
+
+if __name__ == '__main__':
+    main()
+
+

@@ -22,16 +22,20 @@ eg. pip install pyrax
 To backup:
 ==========
 
-backup_to_cloud <filename>
+backup-to-cloud filename
 
 or 
 
-backup_to_cloud <directory> 
+backup-to-cloud directory 
 
 Note: If the file already exists on cloudfiles, it is overwritten.
 
 
 To restore: 
 ===========
+restore-from-cloud LIST - list objects.
+restore-from-cloud GET - download file to current directory
 
-TBD.
+To Do:
+======
+- Need to add recursive restore of directory
