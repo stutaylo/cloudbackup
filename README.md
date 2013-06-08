@@ -2,13 +2,13 @@
 CloudFiles Backup/Restore Scripts
 =================================
 
+NB: You probably want to be using the swift cli and not this.
+    This is me messing around with pyrax.
+
 Python scripts to backup and restore to/from Rackspace CloudFiles.
 
 Written because I need to sometimes quickly back up and restore things
 offsite without thinking.
-
-* NOTE YOU PROBABLY WANT TO BE USING THE OFFICIAL SWIFT CLI, THIS HAS
-* BEEN WRITTEN AS AN EXCERSISE IN PLAYING WITH PYRAX. 
 
 Before using update the accounts hash to include username and api key.
 In theory, you could add additional hashes to the list to backup to two
