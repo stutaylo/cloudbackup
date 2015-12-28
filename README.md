@@ -22,11 +22,11 @@ eg. pip install pyrax
 To backup:
 ==========
 
-backup-to-cloud filename
+backup-to-cloud <filename>
 
 or 
 
-backup-to-cloud directory 
+backup-to-cloud <directory>
 
 Note: If the file already exists on cloudfiles, it is overwritten.
 
